@@ -1,9 +1,8 @@
 const express = require('express');
 const router = express.Router();
-const models = require("../models/")
-const Student = models.Student
+const { Student, Mentor } = require("../models/")
 
-router.get("/all", async (req, res) => {
+router.get("/", async (req, res) => {
     try {
         const students = await Student.findAll();
         res.json(students);
@@ -12,5 +11,29 @@ router.get("/all", async (req, res) => {
         res.status(500).json({ error: 'Internal Server Error' });
     }
 })
+
+router.post("/subscirbe", async (req, res) => {
+    const student = req.user
+    const mentorId = req.body.mentorId
+
+    const mentor = await Mentor.findByPk(mentorId)
+
+    if (!student || !mentor) {
+        return res.status(404).json({ error: 'Student or Mentor not found' });
+    }
+
+    await student.addSubscribed_mentor(mentor);
+    await mentor.addSubscribed_student(student);
+
+    res.json({ message: 'Subscription successful' });
+})
+
+router.get("/subscirbed_mentors", async (req, res) => {
+    const { user } = req;
+    const subscribedMentors = await user.getSubscribed_mentors({
+        attributes: ['id', 'name', 'email'],
+    });
+    res.json(subscribedMentors)
+}) 
 
 module.exports = router;
