@@ -12,4 +12,13 @@ router.get("/", async (req, res) => {
     }
 })
 
+router.get("/subscirbed_students", async (req, res) => {
+    const { user } = req;
+    const subscribedMentors = await user.getSubscribed_students({
+        attributes: ['id', 'name', 'email'],
+    });
+    res.json(subscribedMentors)
+})
+
+
 module.exports = router;
