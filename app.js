@@ -3,7 +3,6 @@ const logger = require("morgan");
 require("express-async-errors");
 const cors = require("cors");
 const passport = require('./utils/passport')
-const { authenticateStudent, authenticateMentor } = require("./utils/middleware")
 const app = express();
 
 app.use(passport.initialize());
@@ -19,9 +18,9 @@ const mentorRouter = require("./controllers/mentorRouter")
 
 
 app.use("/student", studentAuth);
-app.use("/students", authenticateStudent, studentRouter);
-
 app.use("/mentor", mentorAuth);
-app.use("/mentors", authenticateMentor, mentorRouter);
+
+app.use("/students", passport.authenticate("jwt", { session: false }), studentRouter);
+app.use("/mentors", passport.authenticate("jwt", { session: false }), mentorRouter);
 
 module.exports = app
